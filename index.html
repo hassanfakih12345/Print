@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>طباعة الفواتير</title>
+  <link rel="stylesheet" href="style.css">
+  <style id="page-size"></style>
+</head>
+<body>
+  <header class="topbar no-print">
+    <h1>🧾 طباعة الفواتير — POS</h1>
+    <div class="actions">
+      <button id="btn-new" class="secondary">فاتورة جديدة</button>
+      <button id="btn-print" class="primary">🖨️ طباعة</button>
+    </div>
+  </header>
+
+  <main class="layout no-print">
+    <section class="forms">
+      <!-- معلومات المحل -->
+      <details class="card" id="store-card">
+        <summary>🏪 معلومات المحل واللوغو</summary>
+        <div class="grid">
+          <label class="full">اللوغو
+            <div class="logo-row">
+              <input type="file" id="logo-input" accept="image/*">
+              <button type="button" id="logo-remove" class="secondary small">إزالة</button>
+            </div>
+            <img id="logo-thumb" class="logo-thumb" alt="">
+          </label>
+          <label>اسم المحل <input data-store="name" placeholder="مثال: سوبرماركت النور"></label>
+          <label>رقم الهاتف <input data-store="phone" dir="ltr" placeholder="03 123 456"></label>
+          <label class="full">العنوان <input data-store="address" placeholder="بيروت - الحمرا"></label>
+          <label>الرقم الضريبي <input data-store="taxId"></label>
+          <label>اسم الكاشير <input data-store="cashier"></label>
+          <label class="full">رسالة أسفل الفاتورة
+            <textarea data-store="footer" rows="2" placeholder="شكراً لزيارتكم!"></textarea>
+          </label>
+        </div>
+      </details>
+
+      <!-- الإعدادات -->
+      <details class="card">
+        <summary>⚙️ إعدادات الطباعة والعملة</summary>
+        <div class="grid">
+          <label>عرض الورق
+            <select data-store="paper">
+              <option value="80">80 مم</option>
+              <option value="58">58 مم</option>
+            </select>
+          </label>
+          <label>حجم الخط
+            <select data-store="fontSize">
+              <option value="11">صغير</option>
+              <option value="12">عادي</option>
+              <option value="14">كبير</option>
+            </select>
+          </label>
+          <label>رمز العملة <input data-store="currency" placeholder="$"></label>
+          <label>الضريبة % <input data-store="taxRate" type="number" min="0" step="0.01"></label>
+          <label>سعر الصرف (اختياري) <input data-store="rate" type="number" min="0" step="any" placeholder="89500"></label>
+          <label>عملة ثانية <input data-store="currency2" placeholder="ل.ل"></label>
+        </div>
+      </details>
+
+      <!-- معلومات الفاتورة -->
+      <div class="card">
+        <h2>📄 معلومات الفاتورة</h2>
+        <div class="grid">
+          <label>رقم الفاتورة <input data-inv="number"></label>
+          <label>التاريخ والوقت <input data-inv="date" type="datetime-local"></label>
+          <label>اسم الزبون <input data-inv="customer"></label>
+          <label>هاتف الزبون <input data-inv="customerPhone" dir="ltr"></label>
+          <label>طريقة الدفع
+            <select data-inv="payment">
+              <option>نقداً</option>
+              <option>بطاقة</option>
+              <option>تحويل</option>
+              <option>دين</option>
+            </select>
+          </label>
+          <label>المبلغ المدفوع <input data-inv="paid" type="number" min="0" step="any"></label>
+          <label>الخصم <input data-inv="discount" type="number" min="0" step="any" value="0"></label>
+          <label>نوع الخصم
+            <select data-inv="discountType">
+              <option value="amount">مبلغ</option>
+              <option value="percent">نسبة %</option>
+            </select>
+          </label>
+          <label class="full">ملاحظات <input data-inv="notes"></label>
+        </div>
+      </div>
+
+      <!-- المنتجات -->
+      <div class="card">
+        <h2>🛒 المنتجات</h2>
+        <table class="items">
+          <thead>
+            <tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>المجموع</th><th></th></tr>
+          </thead>
+          <tbody id="items-body"></tbody>
+        </table>
+        <datalist id="products-list"></datalist>
+        <button id="btn-add" class="secondary">+ إضافة منتج</button>
+        <p class="hint">المنتجات اللي بتكتبها بتنحفظ تلقائياً مع سعرها، وبتطلعلك اقتراحات المرة الجاية.</p>
+      </div>
+    </section>
+
+    <!-- المعاينة -->
+    <aside class="preview-wrap">
+      <h2>المعاينة</h2>
+      <div class="paper-shadow">
+        <div id="receipt" class="receipt"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- نسخة الطباعة -->
+  <div id="print-area" class="print-only receipt"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
