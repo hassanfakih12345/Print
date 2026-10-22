@@ -49,6 +49,7 @@ button.del { background: transparent; color: var(--danger); padding: 4px 8px; fo
 
 .layout {
   display: grid;
+  min-width: 0;
   grid-template-columns: 1fr 360px;
   gap: 20px;
   padding: 20px;
@@ -96,13 +97,75 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #bfdbfe; border-c
 .logo-thumb { max-height: 60px; max-width: 160px; margin-top: 6px; object-fit: contain; }
 .logo-thumb:not([src]), .logo-thumb[src=""] { display: none; }
 
-table.items { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-table.items th { text-align: right; font-size: .8rem; color: var(--muted); padding: 6px 4px; }
-table.items td { padding: 4px; }
-table.items td:nth-child(1) { width: 45%; }
-table.items td:nth-child(2) { width: 14%; }
-table.items td:nth-child(3) { width: 18%; }
-table.items .line-total { font-weight: 600; white-space: nowrap; }
+.items-head, .item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 70px 90px 80px 36px;
+  gap: 6px;
+  align-items: center;
+}
+.items-head { font-size: .8rem; color: var(--muted); padding: 0 4px 4px; }
+.items { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.item-row .line-total { font-weight: 600; white-space: nowrap; text-align: left; }
+.add-btn { width: 100%; }
+
+.company-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+.company-bar select { flex: 1 1 180px; width: auto; font-weight: 600; }
+button.danger-soft { background: #fee2e2; color: var(--danger); }
+button.danger-soft:hover { background: #fecaca; }
+button.armed { background: var(--danger) !important; color: #fff !important; }
+.save-status { display: block; min-height: 1.2em; margin-top: 6px; font-size: .8rem; color: #059669; }
+.count { font-weight: 400; color: var(--muted); font-size: .85rem; }
+
+.warning {
+  margin: 12px 20px 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: .9rem;
+}
+[hidden] { display: none !important; }
+
+.catalog-form { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; gap: 8px; }
+.catalog-search { margin-top: 10px; }
+.catalog-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.catalog-list:empty { display: none; }
+.catalog-list li { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+.catalog-list li:last-child { border-bottom: none; }
+.catalog-list .pick {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  background: transparent;
+  text-align: right;
+  padding: 10px 12px;
+  border-radius: 0;
+}
+.catalog-list .pick:hover { background: #eff6ff; }
+.catalog-list .price { color: var(--muted); white-space: nowrap; }
+
+.backup { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.file-btn {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  background: #e5e7eb;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: .85rem;
+  cursor: pointer;
+}
+
 .hint { font-size: .8rem; color: var(--muted); margin: 8px 0 0; }
 
 .preview-wrap { position: sticky; top: 80px; align-self: start; }
@@ -142,8 +205,33 @@ table.items .line-total { font-weight: 600; white-space: nowrap; }
 .print-only { display: none; }
 
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
+  .layout { grid-template-columns: 1fr; padding: 12px; }
   .preview-wrap { position: static; }
+  .paper-shadow { max-height: none; }
+}
+
+/* التلفون: كل منتج بيصير كرت، الاسم بسطر لحالو */
+@media (max-width: 600px) {
+  .topbar { padding: 10px 12px; }
+  .topbar h1 { font-size: 1rem; }
+  button { padding: 10px 14px; }
+  .items-head { display: none; }
+  .item-row {
+    grid-template-columns: 1fr 1fr auto;
+    grid-template-areas: "name name del" "qty price total";
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #f9fafb;
+  }
+  .item-row [data-f="name"] { grid-area: name; }
+  .item-row [data-f="qty"] { grid-area: qty; }
+  .item-row [data-f="price"] { grid-area: price; }
+  .item-row .line-total { grid-area: total; }
+  .item-row .del { grid-area: del; }
+  .catalog-form { grid-template-columns: 1fr 1fr; }
+  .catalog-form button { grid-column: 1 / -1; }
+  input, select, textarea { font-size: 16px; } /* بيمنع الزوم التلقائي عالآيفون */
 }
 
 @media print {

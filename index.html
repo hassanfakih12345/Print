@@ -9,18 +9,33 @@
 </head>
 <body>
   <header class="topbar no-print">
-    <h1>🧾 طباعة الفواتير — POS</h1>
+    <h1>🧾 طباعة الفواتير</h1>
     <div class="actions">
       <button id="btn-new" class="secondary">فاتورة جديدة</button>
       <button id="btn-print" class="primary">🖨️ طباعة</button>
     </div>
   </header>
 
+  <div id="storage-warning" class="warning no-print" hidden>
+    ⚠️ المتصفح هون ما عم يقبل يحفظ المعلومات. افتح البرنامج بـ Chrome (مش من داخل تطبيق Claude أو عارض الملفات) لتنحفظ الشركات والمنتجات.
+  </div>
+
   <main class="layout no-print">
     <section class="forms">
-      <!-- معلومات المحل -->
+      <!-- الشركات -->
+      <div class="card">
+        <h2>🏢 الشركة</h2>
+        <div class="company-bar">
+          <select id="company-select" aria-label="اختار الشركة"></select>
+          <button id="btn-company-add" class="secondary">+ شركة جديدة</button>
+          <button id="btn-company-del" class="danger-soft">حذف</button>
+        </div>
+        <span id="save-status" class="save-status"></span>
+      </div>
+
+      <!-- معلومات الشركة -->
       <details class="card" id="store-card">
-        <summary>🏪 معلومات المحل واللوغو</summary>
+        <summary>🏪 معلومات الشركة واللوغو</summary>
         <div class="grid">
           <label class="full">اللوغو
             <div class="logo-row">
@@ -29,7 +44,7 @@
             </div>
             <img id="logo-thumb" class="logo-thumb" alt="">
           </label>
-          <label>اسم المحل <input data-store="name" placeholder="مثال: سوبرماركت النور"></label>
+          <label>اسم الشركة <input data-store="name" placeholder="مثال: سوبرماركت النور"></label>
           <label>رقم الهاتف <input data-store="phone" dir="ltr" placeholder="03 123 456"></label>
           <label class="full">العنوان <input data-store="address" placeholder="بيروت - الحمرا"></label>
           <label>الرقم الضريبي <input data-store="taxId"></label>
@@ -58,10 +73,29 @@
             </select>
           </label>
           <label>رمز العملة <input data-store="currency" placeholder="$"></label>
-          <label>الضريبة % <input data-store="taxRate" type="number" min="0" step="0.01"></label>
-          <label>سعر الصرف (اختياري) <input data-store="rate" type="number" min="0" step="any" placeholder="89500"></label>
+          <label>الضريبة % <input data-store="taxRate" type="number" inputmode="decimal" min="0" step="0.01"></label>
+          <label>سعر الصرف (اختياري) <input data-store="rate" type="number" inputmode="decimal" min="0" step="any" placeholder="89500"></label>
           <label>عملة ثانية <input data-store="currency2" placeholder="ل.ل"></label>
         </div>
+        <div class="backup">
+          <button id="btn-export" class="secondary small">⬇️ نسخة احتياطية</button>
+          <label class="secondary small file-btn">⬆️ استرجاع نسخة
+            <input type="file" id="import-input" accept="application/json,.json" hidden>
+          </label>
+        </div>
+      </details>
+
+      <!-- المنتجات المحفوظة -->
+      <details class="card" id="catalog-card">
+        <summary>📦 المنتجات المحفوظة <span id="catalog-count" class="count"></span></summary>
+        <form id="catalog-form" class="catalog-form">
+          <input id="catalog-name" placeholder="اسم المنتج" required>
+          <input id="catalog-price" type="number" inputmode="decimal" min="0" step="any" placeholder="السعر" required>
+          <button type="submit" class="primary">حفظ المنتج</button>
+        </form>
+        <input id="catalog-search" class="catalog-search" placeholder="🔍 فتّش عن منتج">
+        <ul id="catalog-list" class="catalog-list"></ul>
+        <p class="hint">كبسة على المنتج بتزيدو عالفاتورة.</p>
       </details>
 
       <!-- معلومات الفاتورة -->
@@ -80,8 +114,8 @@
               <option>دين</option>
             </select>
           </label>
-          <label>المبلغ المدفوع <input data-inv="paid" type="number" min="0" step="any"></label>
-          <label>الخصم <input data-inv="discount" type="number" min="0" step="any" value="0"></label>
+          <label>المبلغ المدفوع <input data-inv="paid" type="number" inputmode="decimal" min="0" step="any"></label>
+          <label>الخصم <input data-inv="discount" type="number" inputmode="decimal" min="0" step="any"></label>
           <label>نوع الخصم
             <select data-inv="discountType">
               <option value="amount">مبلغ</option>
@@ -92,18 +126,16 @@
         </div>
       </div>
 
-      <!-- المنتجات -->
+      <!-- منتجات الفاتورة -->
       <div class="card">
-        <h2>🛒 المنتجات</h2>
-        <table class="items">
-          <thead>
-            <tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>المجموع</th><th></th></tr>
-          </thead>
-          <tbody id="items-body"></tbody>
-        </table>
+        <h2>🛒 منتجات الفاتورة</h2>
+        <div class="items-head">
+          <span>المنتج</span><span>الكمية</span><span>السعر</span><span>المجموع</span><span></span>
+        </div>
+        <div id="items-body" class="items"></div>
         <datalist id="products-list"></datalist>
-        <button id="btn-add" class="secondary">+ إضافة منتج</button>
-        <p class="hint">المنتجات اللي بتكتبها بتنحفظ تلقائياً مع سعرها، وبتطلعلك اقتراحات المرة الجاية.</p>
+        <button id="btn-add" class="secondary add-btn">+ إضافة منتج</button>
+        <p class="hint">المنتجات اللي بتكتبها بالفاتورة بتنحفظ لحالها مع سعرها لما تطبع.</p>
       </div>
     </section>
 
